@@ -9,28 +9,38 @@ const { authServer } = require('../config/default');
 router.post('/', async (req, res) => {
   try {
     let response;
-    console.log('action: ', req.body.action);
 
     switch (req.body.action) {
       case 'registerUser':
         response = await registerUser(req.body.reqBody);
         break;
+
       case 'loginUser':
         response = await loginUser(req.body.reqBody);
         break;
+
       case 'registerProfile':
         response = await registerProfile(req);
         break;
+
+      case 'getSelf':
+        response = await getSelf(req);
+        break;
+
       default:
         return res.status(404).json({ errors: { action: 'Invalid Request' } });
     }
-    console.log('response from service');
 
     if (response.errors) throw response.errors;
     res.json(response.data);
   } catch (error) {
     console.error('error', error);
-    res.status(500).json(error);
+
+    if (error.msg.includes('No token')) {
+      res.status(401).json(error);
+    } else {
+      res.status(500).json(error);
+    }
   }
 });
 
@@ -59,7 +69,7 @@ const loginUser = async (body) => {
 
 const registerProfile = async (req) => {
   const token = req.header('x-auth-token');
-  console.log('token:', token);
+
   //decide if token is confirmed here on microservice
   if (token) {
     try {
@@ -76,7 +86,26 @@ const registerProfile = async (req) => {
       return error.response.data;
     }
   } else {
-    return { errors: { token: 'Invalid Token' } };
+    return { errors: { msg: 'No token, authorization denied' } };
+  }
+};
+
+const getSelf = async (req) => {
+  const token = req.header('x-auth-token');
+
+  if (token) {
+    try {
+      const response = axios.get(`${authServer}/api/profiles/self`, {
+        headers: { 'x-auth-token': token },
+      });
+
+      return response;
+    } catch (error) {
+      console.error(error.response.data);
+      return error.response.data;
+    }
+  } else {
+    return { errors: { msg: 'No token, authorization denied' } };
   }
 };
 

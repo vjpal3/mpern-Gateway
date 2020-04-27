@@ -10,7 +10,7 @@ app.use('/api/auth', auth);
 
 const port = process.env.PORT || 6000;
 
-app.listen(port, () => console.log(`app listeniong on port ${port}`));
+app.listen(port, () => console.log(`app listening on port ${port}`));
 
 // gateway >> auth service
 // frontend >> gateway >> authservice
