@@ -36,11 +36,11 @@ router.post('/', async (req, res) => {
   } catch (error) {
     console.error('error', error);
 
-    if (error.msg.includes('No token')) {
-      res.status(401).json(error);
-    } else {
-      res.status(500).json(error);
-    }
+    // if (error.msg.includes('No token')) {
+    //   res.status(401).json(error);
+    // } else {
+    res.status(500).json(error);
+    // }
   }
 });
 
@@ -73,7 +73,7 @@ const registerProfile = async (req) => {
   //decide if token is confirmed here on microservice
   if (token) {
     try {
-      const response = axios.post(
+      const response = await axios.post(
         `${authServer}/api/profiles`,
         req.body.profileData,
         {
@@ -95,7 +95,7 @@ const getSelf = async (req) => {
 
   if (token) {
     try {
-      const response = axios.get(`${authServer}/api/profiles/self`, {
+      const response = await axios.get(`${authServer}/api/profiles`, {
         headers: { 'x-auth-token': token },
       });
 
